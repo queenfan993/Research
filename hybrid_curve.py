@@ -69,7 +69,6 @@ seperate_space = 20
 variable = sys.argv[1]
 plot_helper = num_anchors
 
-
 if variable == "num_vehicles":
     num_anchors = int(sys.argv[2])
     plot_helper = num_anchors
@@ -121,35 +120,20 @@ motion_noise = velocity * velocity_noise_percent * 0.1
 # for test_name, vehicles in senario, total episode
 
 eva_obj_list_rss_toa_tdoa = []
-eva_obj_list_toa = []
-
 eva_obj_total_error_rss_toa_tdoa = []
-eva_obj_total_error_toa = []
-
 eva_obj_total_smart_error_rss_toa_tdoa = []
-eva_obj_total_smart_error_toa = []
 
 #every list matix(len(error_test_set),len(num_anchors)) in eva_obj y_coordinatE with list lenth TOTAL_EPISODE  
 for i in range(len(error_test_set)):
     eva_obj_list_rss_toa_tdoa.append([])
-    eva_obj_list_toa.append([])
 
     eva_obj_total_error_rss_toa_tdoa.append([])
-    eva_obj_total_error_toa.append([])
 
     for j in range(num_anchors):
-        eva_obj_list_rss_toa_tdoa[i].append( Evaluation(j, error_test_set[i], TOTAL_EPISODE ,runs) )
-        eva_obj_list_toa[i].append( Evaluation(j, error_test_set[i], TOTAL_EPISODE ,runs) )
-       
-
+        eva_obj_list_rss_toa_tdoa[i].append( Evaluation(j, error_test_set[i], TOTAL_EPISODE ,runs) )    
         eva_obj_total_error_rss_toa_tdoa[i].append( Evaluation(j, error_test_set[i], TOTAL_EPISODE ,runs) )
-        eva_obj_total_error_toa[i].append( Evaluation(j, error_test_set[i], TOTAL_EPISODE ,runs) )
         
-
-    eva_obj_total_smart_error_rss_toa_tdoa.append( Evaluation("Total_Smart", error_test_set[i], TOTAL_EPISODE ,runs) )
-    eva_obj_total_smart_error_toa.append( Evaluation("Total_Smart", error_test_set[i], TOTAL_EPISODE ,runs) )
-    
-
+    eva_obj_total_smart_error_rss_toa_tdoa.append( Evaluation("Total_Smart", error_test_set[i], TOTAL_EPISODE ,runs) )  
 #==========================================================================================================
 
 #if the neighbors return the hybrud system prediction
@@ -159,11 +143,6 @@ smart_filter_index = 0
 
 num_neighbors = []
 
-color_list = []
-for i in range(len(error_test_set)):
-    color_list.append((random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)) )
-fig = plt.figure()
-ax = fig.add_subplot(111, aspect='auto')
 
 for episode in range(TOTAL_EPISODE):
 
@@ -194,12 +173,13 @@ for episode in range(TOTAL_EPISODE):
             if error_test_set[j] == "Fisher" or error_test_set[j] == "Fisher_measurement" or error_test_set[j] == "Fisher_gps": continue
             if i not in smart: continue
 
-            #anchors[i].ini_neighbor_KF(ini_real_loc, motion_noise, GPS_std, j)
             anchors[i].ini_neighbor_KF(ini_neighbor_measurement_gps, motion_noise, GPS_std, j)
 
     #==================== TIME PROCESSING ==================
     velocity_list = genVelocity(num_anchors, velocity)
     turn_list = gentTurnVelocity(num_anchors, turn_velocity)
+    
+    #for the target 
     velocity_list[0] = velocity
     turn_list[0] = turn_velocity
 
@@ -211,13 +191,9 @@ for episode in range(TOTAL_EPISODE):
     last_measurement_gps = []
     all_measurement_gps = []
 
-
     for t in range(runs):
 
-        #print "time:", t
-        
         last_velocity_list = fake_velocity
-
         last_measurement_gps = all_measurement_gps
 
         all_measurement_gps = []
@@ -284,81 +260,52 @@ for episode in range(TOTAL_EPISODE):
 
                 if error_test_set[j] == "KF_EKF_GPS_ori": 
                     update_ego_kf_ekf_GPS_ori_rss_toa_tdoa(anchors[i],j)
-                    update_ego_kf_ekf_GPS_ori_toa(anchors[i],j)
                     
 
                 if error_test_set[j] == "KF_EKF_table_NU_CT":
                     update_ego_kf_ekf_table_nu_Ctable_rss_toa_tdoa(anchors[i],j)
-                    update_ego_kf_ekf_table_nu_Ctable_toa(anchors[i],j)
                            
             anchor_x, anchor_y, anchor_o = anchors[i].getposition()
             for j in range(len(error_test_set)):
                 #becuse smart = 0, i alwasys = 0 
                 if error_test_set[j] == "Fisher": 
-                    eva_obj_list_rss_toa_tdoa[j][i].push_error_back(episode, anchors[0].true_fisher_MSE_rss_toa_tdoa_gps)
-                    eva_obj_list_toa[j][i].push_error_back(episode, anchors[0].true_fisher_MSE_toa_gps) 
-                    
+                    eva_obj_list_rss_toa_tdoa[j][i].push_error_back(episode, anchors[0].true_fisher_MSE_rss_toa_tdoa_gps)                   
                     continue
 
-                # rss    
                 tmp_X_rss_toa_tdoa = anchors[i].get_filter_rss_toa_tdoa_X(j)
-                tmp_X_toa = anchors[i].get_filter_toa_X(j)
 
                 error_square_rss_toa_tdoa = distance2(anchor_x, anchor_y, tmp_X_rss_toa_tdoa[0][0], tmp_X_rss_toa_tdoa[1][0])
-                error_square_toa = distance2(anchor_x, anchor_y, tmp_X_toa[0][0], tmp_X_toa[1][0])
                 
-
                 eva_obj_list_rss_toa_tdoa[j][i].push_error_back(episode, error_square_rss_toa_tdoa)
-                eva_obj_list_toa[j][i].push_error_back(episode, error_square_toa)
-                        
-
-                total_error_rss_toa_tdoa = cal_all_error_rss_toa_tdoa(anchors, j, i)
-                total_error_toa = cal_all_error_toa(anchors, j, i)
-            
-
-                eva_obj_total_error_rss_toa_tdoa[j][i].push_error_back(episode, total_error_rss_toa_tdoa)
-                eva_obj_total_error_toa[j][i].push_error_back(episode, total_error_toa)
-               
       
+                total_error_rss_toa_tdoa = cal_all_error_rss_toa_tdoa(anchors, j, i)
+            
+                eva_obj_total_error_rss_toa_tdoa[j][i].push_error_back(episode, total_error_rss_toa_tdoa)
 
-
+               
         for j in range(len(error_test_set)):
             if error_test_set[j] == "Fisher" or error_test_set[j] == "Fisher_measurement" or error_test_set[j] == "Fisher_gps": continue
             total_smart_error_rss_toa_tdoa = cal_all_smart_error_rss_toa_tdoa(anchors, j, smart)
-            total_smart_error_toa = cal_all_smart_error_toa(anchors, j, smart)
-            
-
             eva_obj_total_smart_error_rss_toa_tdoa[j].push_error_back(episode, total_smart_error_rss_toa_tdoa)
-            eva_obj_total_smart_error_toa[j].push_error_back(episode, total_smart_error_toa)
-        
-        #a_loc = getAllLOC(anchors, num_anchors)
-        #plot_dynamic2(a_loc, smart, anchors, all_measurement_gps, color_list,ax)
-        #plot_dynamic_ellipse(a_loc, smart, anchors, all_measurement_gps, color_list, ax, 2,8)
 
     # ======================================= Output DATA =======================================
     for j in range(len(error_test_set)):
-        #title = "_{0}_{1}".format(variable, plot_helper)
         title = "./raw/{0}/total_smart_{1}_{0}_{2}_rss_toa_tdoa.txt".format(variable, error_test_set[j], plot_helper)
         eva_obj_total_smart_error_rss_toa_tdoa[j].outText(title, episode)
-        title = "./raw/{0}/total_smart_{1}_{0}_{2}_toa.txt".format(variable, error_test_set[j], plot_helper)
-        eva_obj_total_smart_error_toa[j].outText(title, episode)
         
-
         for i in range(num_anchors):
             if i not in smart: continue
             title = "./raw/{0}/error_{1}_node{3}_{0}_{2}_rss_toa_tdoa.txt".format(variable, error_test_set[j], plot_helper, i)
             eva_obj_list_rss_toa_tdoa[j][i].outText(title, episode)
-            title = "./raw/{0}/error_{1}_node{3}_{0}_{2}_toa.txt".format(variable, error_test_set[j], plot_helper, i)
-            eva_obj_list_toa[j][i].outText(title, episode)
-
             title = "./raw/{0}/total_neighbor_node{3}_{1}_{0}_{2}_rss_toa_tdoa.txt".format(variable, error_test_set[j], plot_helper, i)
             eva_obj_total_error_rss_toa_tdoa[j][i].outText(title, episode)
-            title = "./raw/{0}/total_neighbor_node{3}_{1}_{0}_{2}_toa.txt".format(variable, error_test_set[j], plot_helper, i)
-            eva_obj_total_error_toa[j][i].outText(title, episode)
-            
+
+
+color_list = []
+for i in range(len(error_test_set)):
+    color_list.append((random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)) )
 
 #====================== PLOT ============================================= 
-
 fig = plt.figure()
 ax = plt.subplot(1, 1, 1)
 
@@ -367,72 +314,6 @@ for j in range(len(error_test_set)):
     plt.plot(range(runs), eva_obj_total_smart_error_rss_toa_tdoa[j].gethistMean(),label=error_test_set[j])
 plt.legend(loc=0)
 plt.savefig("./figures/{0}/total_smart_error_rss_toa_tdoa_{0}_{1}.pdf".format(variable, plot_helper))
-
-fig = plt.figure()
-ax = plt.subplot(1, 1, 1)
-
-for j in range(len(error_test_set)):
-    if error_test_set[j] == "Fisher" or error_test_set[j] == "Fisher_measurement" or error_test_set[j] == "Fisher_gps": continue
-    plt.plot(range(runs), eva_obj_total_smart_error_toa[j].gethistMean(),label=error_test_set[j])
-plt.legend(loc=0)
-plt.savefig("./figures/{0}/total_smart_error_toa_{0}_{1}.pdf".format(variable, plot_helper))
-
-
-#===========================================================================
-#color = ['r','k','m','g','y','b','c']
-
-for i in range(num_anchors):
-    if i in smart:
-        #
-        fig = plt.figure()
-        ax = plt.subplot(1, 1, 1)
-
-        for j in range(len(error_test_set)):
-            tmpqq = [sqrt(k) for k in eva_obj_list_rss_toa_tdoa[j][i].gethistMean()]
-            plt.plot(range(runs),  tmpqq  ,c=color_list[j], label=error_test_set[j])
-
-        plt.legend(loc=0,prop={'size': 6})
-        ax.set_title('rss_{0}_{1}'.format(variable,plot_helper))
-        ax.set_xlabel('time')
-        ax.set_ylabel('error'+'('+'m'+')')
-        plt.savefig("./figures/{0}/rss_toa_tdoa_mse_node{1}_{0}_{2}.pdf".format(variable, i, plot_helper))
-
-        fig = plt.figure()
-        ax = plt.subplot(1, 1, 1)
-
-        for j in range(len(error_test_set)):
-            if error_test_set[j] == "Fisher" or error_test_set[j] == "Fisher_measurement" or error_test_set[j] == "Fisher_gps": continue
-            plt.plot(range(runs),  eva_obj_total_error_rss_toa_tdoa[j][i].gethistMean()  ,c=color_list[j], label=error_test_set[j])
-
-        ax.set_title('rss-{0}-Error-{1}times-average_std'.format(variable,TOTAL_EPISODE))
-        plt.legend(loc=0,prop={'size': 6})
-        plt.savefig("./figures/{0}/rss_toa_tdoa_neighbor_error_node{1}_{0}_{2}.pdf".format(variable, i, plot_helper))
-
-for i in range(num_anchors):
-    if i in smart:
-        fig = plt.figure()
-        ax = plt.subplot(1, 1, 1)
-
-        for j in range(len(error_test_set)):
-            tmpqq = [sqrt(k) for k in eva_obj_list_toa[j][i].gethistMean()]
-            plt.plot(range(runs),  tmpqq  ,c=color_list[j], label=error_test_set[j])
-
-        plt.legend(loc=0,prop={'size': 6})
-        ax.set_title('rss_{0}_{1}'.format(variable,plot_helper))
-        ax.set_xlabel('time')
-        ax.set_ylabel('error'+'('+'m'+')')
-        plt.savefig("./figures/{0}/toa_mse_node{1}_{0}_{2}.pdf".format(variable, i, plot_helper))
-
-        fig = plt.figure()
-        ax = plt.subplot(1, 1, 1)
-
-        for j in range(len(error_test_set)):
-            if error_test_set[j] == "Fisher" or error_test_set[j] == "Fisher_measurement" or error_test_set[j] == "Fisher_gps": continue
-            plt.plot(range(runs),  eva_obj_total_error_toa[j][i].gethistMean()  ,c=color_list[j], label=error_test_set[j])
-
-        ax.set_title('rss-{0}-Error-{1}times-average_std'.format(variable,TOTAL_EPISODE))
-        plt.legend(loc=0,prop={'size': 6})
-        plt.savefig("./figures/{0}/toa_neighbor_error_node{1}_{0}_{2}.pdf".format(variable, i, plot_helper))        
 
 #===========================================================================
 for i in range(num_anchors):
@@ -456,26 +337,4 @@ for i in range(num_anchors):
         ax.set_ylabel('error'+'('+'m'+')')
 
         plt.savefig("./figures/{0}/rss_toa_tdoa_mean_std_node{1}_{0}_{2}.pdf".format(variable, i, plot_helper))
-
-for i in range(num_anchors):
-    data = []
-    if i in smart:
-        for j in range(len(error_test_set)):
-            tmp_hist = np.array(eva_obj_list_toa[j][i].hist_error)
-            data.append(tmp_hist)
-
-        fig = plt.figure()
-        ax = plt.subplot(1, 1, 1)
-        index = np.arange(1)
-        bar_width = 0.1
-        out = genBar(data, index, bar_width, color_list, error_test_set)
-
-        for q in range(len(data)):
-            createLabels(out[q])
-        plt.legend(loc=0,prop={'size': 6})
-        ax.set_title('toa_mean_std_{0}_{1}'.format(variable,plot_helper))
-        ax.set_xlabel('filters')
-        ax.set_ylabel('error'+'('+'m'+')')
-
-        plt.savefig("./figures/{0}/toa_mean_std_node{1}_{0}_{2}.pdf".format(variable, i, plot_helper))
 

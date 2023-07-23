@@ -1,4 +1,5 @@
-## Files: hybrid_curve.py, script.py, mkdir.py, clear.py, performance.py, src, readme.md
+## Notice:
+- Due to some confidential contents, certain parts are not disclosed in this repository
 
 ## Usage:
 ```
@@ -9,24 +10,18 @@ python script.py [performance_matrix]
 * shadowing_effect
 * gps_std
 * velocity
+* ...
 
 ```
 python performance.py
 ```
 generate the figures after simulations done
 
-## Notice:
-- Here we use:
-* KF_EKF_ECRLB to represent KF_EKF_proposed_ECRLB
-* Fisher to represent DCRLB
-It's just a changing name for consistency with our thesis.
-
 ### hybrid_curve.py
 - Simulation code with default values and algorithms.
 - error_test_set : the target simulation model 
 - variable = sys.argv[1] : variable to test
 - run the simulation "TOTAL_EPISODE" times and with "runs" update times 
-
 
 ### script.py
 - Script for changing performance variable value and call rss_different_topology_curve.py. This script will call "mkdir.py" and "clear.py" previously to ensure the folders are good and old raw data will be eliminated.
