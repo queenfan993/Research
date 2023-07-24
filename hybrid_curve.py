@@ -94,7 +94,7 @@ elif variable == "motion_noise":
     plot_helper = velocity_noise_percent
 
 else:
-    print ("Wrong for variable!")
+    print "Wrong for variable!"
 
 #=========================================
 
@@ -154,19 +154,16 @@ for episode in range(TOTAL_EPISODE):
     GPS_bias_neighbors = genBias(GPS_bias, num_anchors) #bias list with length num_anchors
 
     ini_neighbor_measurement_gps = []
-    ini_real_loc = []
 
     for i in range(num_anchors):
         anchor_x, anchor_y, anchor_o = anchors[i].getposition()
         # construct the x,y in GPS_obj_list from the given quantile and add gaussian noise and append to neighbor_measurement)gps
         ini_neighbor_measurement_gps.append(GPS_obj_list[i].genGPS_coordinate_bias(anchor_x, anchor_y, GPS_bias_neighbors[i])) 
-        ini_real_loc.append([[anchor_x], [anchor_y]])
 
         for j in range(len(error_test_set)):
             if error_test_set[j] == "Fisher" or error_test_set[j] == "Fisher_measurement" or error_test_set[j] == "Fisher_gps": continue
             if i not in smart: continue
             anchors[i].genFilteringObj(error_test_set[j], ini_neighbor_measurement_gps[i][0][0], ini_neighbor_measurement_gps[i][1][0]) #
-            #anchors[i].genFilteringObj(error_test_set[j], anchor_x, anchor_y)
 
     for i in range(num_anchors):
         for j in range(len(error_test_set)):
@@ -198,12 +195,10 @@ for episode in range(TOTAL_EPISODE):
 
         all_measurement_gps = []
         observed_data = []
-        true_all_loc = []
 
         # ======================================= Move =======================================
         fake_velocity = []
         orientation += turn_velocity
-        all_node_loc = []
 
 
         for i in range(len(anchors)):
@@ -216,15 +211,12 @@ for episode in range(TOTAL_EPISODE):
             anchors[i].updateControl()
             fake_velocity.append(sqrt(anchors[i].control[0]**2 + anchors[i].control[1]**2) * 10 )
 
-            anchor_x, anchor_y, anchor_o = anchors[i].getposition()
-            all_node_loc.append([anchor_x, anchor_y])
 
         # ======================================= Obesrvation =======================================
         for i in range(len(anchors)):
             observed_data.append([])
 
             anchor_x, anchor_y, anchor_o = anchors[i].getposition()
-            true_all_loc.append([anchor_x ,anchor_y])
             if i in smart:
                 anchors[i].communicating_LogNormalModel(anchors)
                 anchors[i].communicating_TOA(anchors)

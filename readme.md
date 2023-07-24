@@ -5,7 +5,7 @@
 ```
 python script.py [performance_matrix]
 ```
-[performance_matrix] can be:
+[performance_matrix] can be :
 * num_vehicles
 * shadowing_effect
 * gps_std
