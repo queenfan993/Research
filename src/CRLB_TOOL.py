@@ -1,10 +1,8 @@
 import random
 import numpy as np
-
 from numpy import dot, sum, tile, linalg
 from numpy.linalg import inv 
 from numpy import *
-import matplotlib.pyplot as plt
 from math import *
 import random
 
@@ -69,66 +67,6 @@ def rss_crlb(real_loc, anchors, PLE, shadow, KF_P):
     data_J.append( sqrt(inv_J[0][0]+ inv_J[1][1]))
 
     return data_J
-
-def rss_crlb2(real_loc, anchors, PLE, shadow):
-
-
-
-    data_J = []
-    num_anchors = len(anchors)
-    if num_anchors <= 1: return array([1.])
-    J = np.zeros((2, 2))
-
-    for i in range(num_anchors):
-        dist = distance(real_loc[0], real_loc[1], anchors[i][0], anchors[i][1]  )
-        #tmp_J, v = Static_CRLB(anchors[i][0], anchors[i][1], real_loc[0], real_loc[1], dist, PLE, array([[shadow**2 + ((sqrt(KF_P) *10*PLE)/log(10)/dist)**2 ]]))
-        tmp_J, v = Static_CRLB(anchors[i][0], anchors[i][1], real_loc[0], real_loc[1], dist, PLE, array([[shadow**2]]))
-
-        J += tmp_J
-    inv_J = inv(J)
-    data_J.append( sqrt(inv_J[0][0]+ inv_J[1][1]))
-
-    return data_J
-
-def rss_crlb3(real_loc, anchors, PLE, shadow):
-
-    data_J = []
-    num_anchors = len(anchors)
-
-    J = np.zeros((2, 2))
-
-    for i in range(num_anchors):
-
-        dist = distance(real_loc[0], real_loc[1], anchors[i][0], anchors[i][1]  )
-        #tmp_J, v = Static_CRLB(anchors[i][0], anchors[i][1], real_loc[0], real_loc[1], dist, PLE, array([[shadow**2 + ((sqrt(KF_P) *10*PLE)/log(10)/dist)**2 ]]))
-        tmp_J, v = Static_CRLB(anchors[i][0], anchors[i][1], real_loc[0], real_loc[1], dist, PLE, array([[shadow**2]]))
-
-        J += tmp_J
-
-    inv_J = inv(J)
-    data_J.append( sqrt(inv_J[0][0]+ inv_J[1][1]))
-
-    return data_J
-
-
-def rss_crlb(real_loc, anchors, PLE, shadow, KF_P):
-
-    data_J = []
-    num_anchors = len(anchors)
-
-    J = np.zeros((2, 2))
-
-    for i in range(num_anchors):
-
-        dist = distance(real_loc[0], real_loc[1], anchors[i][0], anchors[i][1]  )
-        tmp_J, v = Static_CRLB(anchors[i][0], anchors[i][1], real_loc[0], real_loc[1], dist, PLE, array([[shadow**2 ]]))
-        J += tmp_J
-
-    inv_J = inv(J)
-    data_J.append( sqrt(inv_J[0][0]+ inv_J[1][1]))
-
-    return data_J
-
 
 def gps_crlb(GPS_std, GPS_bias):
 

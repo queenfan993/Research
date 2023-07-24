@@ -260,10 +260,6 @@ class Vehicle:
             self.neighbor_whether_meet_state[i] += 1
 
 
-
-#    def getGDOP_rssi(self, mse):
-#       b = pow(10.*self.PLE/self.shadowing/log(10) ,2)
-#       return sqrt(mse*b)
     
     def gps_crlb_fisher(self):
     
@@ -308,30 +304,10 @@ class Vehicle:
             # =========== NEIGHBOR KF MENTATION =================
             if i in self.candidate and not self.gps_miss[i]:
 
-                #print self.all_measurement_gps[i]
                 self.neighbor_KF[filter_index][i].updateQ(motion_x_std, motion_y_std)
+                self.neighbor_KF[filter_index][i].predict(U)
+                self.neighbor_KF[filter_index][i].update(self.GPS_variance, self.all_measurement_gps[i])
 
-                if i in self.smart_list and t>= 10000000 and smart_filter_index == filter_index:
-
-                    #if len(self.observed_data[i])>flag and filter_index == 1 and t>= 1 :
-                    #self.neighbor_KF[filter_index][i].updateR(self.observed_data[i][1])
-                    #self.neighbor_KF[filter_index][i].update(self.observed_data[i][0])
-                    #a = GPS_obj_list[i].getGPS_std()
-                    #tmp_var = array([[a**2,0],[0,a**2]] )
-                    #self.neighbor_KF[filter_index][i].updateR(tmp_var)
-                    #self.neighbor_KF[filter_index][i].X = self.observed_data[i][0]
-                    #self.neighbor_KF[filter_index][i].P = self.observed_data[i][1]
-
-                    #self.neighbor_KF[filter_index][i].X[0][0] = 1
-                    #anchor_x, anchor_y, anchor_ori  = self.perfect_neighbor[i].getposition()
-
-                    self.neighbor_KF[filter_index][i].predict(U)
-                    self.neighbor_KF[filter_index][i].update(self.GPS_variance, self.observed_data[i][0])
-
-                else:
-                    self.neighbor_KF[filter_index][i].predict(U)
-                    self.neighbor_KF[filter_index][i].update(self.GPS_variance, self.all_measurement_gps[i])
-                    #self.neighbor_KF[filter_index][i].updateR(self.neighbor_KF[filter_index][i].P)
             else:
                 self.neighbor_KF[filter_index][i].predict(U)
 
